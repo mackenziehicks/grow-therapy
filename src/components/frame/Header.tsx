@@ -8,7 +8,8 @@ class Header extends Component {
             <p>
                 Grow Take Home
             </p>
-        </header>);
+        </header>
+      );
   }
 }
 
