@@ -7,7 +7,7 @@ class Header extends Component {
             <h1>
                 Grow Take Home
             </h1>
-            <img src={"https://growtherapy.com/wp-content/uploads/2022/04/Full-Logo.svg"} className="App-logo" alt="logo" />
+            <img src={"https://growtherapy.com/wp-content/uploads/2022/04/Full-Logo.svg"} alt="Grow Therapy Logo" />
         </header>
       );
   }

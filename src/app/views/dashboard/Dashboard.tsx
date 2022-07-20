@@ -22,6 +22,7 @@ const Dashboard = () => {
   const [countries, setCountries] = useState([]);
 
   useEffect(() => {
+    /* Get list of country codes*/
     fetch('https://restcountries.com/v3.1/all')
         .then(res => res.json())
         .then(
@@ -30,8 +31,9 @@ const Dashboard = () => {
                   return { label: country.name.common, value: country.cca2 
                 }});
 
-                codes.unshift({label: 'All', value: null});
-                setCountries(codes);
+                const sorted = [...codes].sort((a,b) => a.label.localeCompare(b.label));
+                sorted.unshift({label: 'All', value: null});
+                setCountries(sorted);
             })
         .catch((error) => {
             setError(error);
@@ -48,6 +50,7 @@ const Dashboard = () => {
     }
     const url = countryCode ? `https://wikimedia.org/api/rest_v1/metrics/pageviews/top-per-country/${countryCode}/all-access/${formattedDate}` : `https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia/all-access/${formattedDate}`;
     
+    /* fetch articles */
     const fetchArticles = () => {
       // fetch data
       fetch(url)
@@ -94,25 +97,29 @@ const Dashboard = () => {
     <div className="tw-container tw-p-4 tw-space-y-3">
       <div className="tw-flex tw-space-x-14 tw-justify-center tw-flex-wrap">
         <DatePicker handleDateChange={handleDateChange} date={date} maxDate={today} title='Start date:' />
-          <Select handleSelectChange={handleCountChange} defaultValue={articleCount} title="Number of Results" options={[{value: 25, label: 25}, { value: 50, label: 50 }, {value: 75, label: 75 }, {value: 100, label: 100 }, { value: 200, label: 200}]} />
         <div className="tw-w-40">
           <Select handleSelectChange={handleCountryCodeChange} defaultValue='all' title="Country" options={countries} />
         </div>
+          <Select handleSelectChange={handleCountChange} defaultValue={articleCount} title="Number of Results" options={[{value: 25, label: 25}, { value: 50, label: 50 }, {value: 75, label: 75 }, {value: 100, label: 100 }, { value: 200, label: 200}]} />
       </div>
-        {!isLoaded && <div>Loading...</div>}
-        {error && (
+        {!isLoaded && (
           <div>
-            <p className="tw-text-red-400">{error}</p>
+            <p>Loading...</p>
           </div>
         )}
-        {isLoaded && ! error && results && (
-            <div className="tw-flex tw-flex-col tw-space-y-5 tw-max-w-xl tw-mx-auto">
-              {results.map((article) => (
-                <Card key={article.article} title={article.article.split('_').join(' ')} secondaryTitle="Views:" secondaryValue={article?.views?.toLocaleString("en-US") || article?.views_ceil?.toLocaleString("en-US")} />
-              ))}
+        {error && (
+            <div>
+              <p className="tw-text-red-400">{error}</p>
             </div>
-          )
-        }
+        )}
+      {isLoaded && ! error && results && (
+          <div className="tw-flex tw-flex-col tw-space-y-5 tw-max-w-xl tw-mx-auto">
+            {results.map((article) => (
+              <Card key={article.article} title={article.article.split('_').join(' ')} secondaryTitle="Views:" secondaryValue={article?.views?.toLocaleString("en-US") || article?.views_ceil?.toLocaleString("en-US")} />
+            ))}
+          </div>
+        )
+      }
     </div>
   )
 }
