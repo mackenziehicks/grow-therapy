@@ -16,13 +16,47 @@ const Dashboard = () => {
   const [formattedDate, setFormattedDate] = useState(format(new Date(yesterday), 'yyyy/MM/dd'));
 
   const [articleCount, setArticleCount] = useState(100);
-  const [results, setResults] = useState(articles.slice(0, 100));
+  const [results, setResults] = useState(articles ? articles.slice(0, 100): []);
+
+  const [countryCode, setCountryCode] = useState(null);
+  const [countries, setCountries] = useState([]);
 
   useEffect(() => {
+    fetch('https://restcountries.com/v3.1/all')
+        .then(res => res.json())
+        .then(
+            (data) => {
+                const codes = data.map((country) => {
+                  return { label: country.name.common, value: country.cca2 
+                }});
+
+                codes.unshift({label: 'All', value: null});
+                setCountries(codes);
+            })
+        .catch((error) => {
+            setError(error);
+        }
+      )
+  }, []);
+
+  useEffect(() => {
+    if (isLoaded) {
+      setIsLoaded(false);
+    }
+    if (error) {
+      setError(null);
+    }
+    const url = countryCode ? `https://wikimedia.org/api/rest_v1/metrics/pageviews/top-per-country/${countryCode}/all-access/${formattedDate}` : `https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia/all-access/${formattedDate}`;
+    
     const fetchArticles = () => {
       // fetch data
-      fetch(`https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia/all-access/${formattedDate}`)
-        .then(res => res.json())
+      fetch(url)
+        .then(res => {
+          if (!res.ok) {
+            setError(`Error: ${res.status} ${res.statusText}, Please try another country or date!`);
+          }
+          return res.json()
+        })
         .then(
             (data) => {
               setIsLoaded(true);
@@ -36,45 +70,51 @@ const Dashboard = () => {
     };
     
     fetchArticles();
-  }, [formattedDate])
+  }, [formattedDate, countryCode])
 
   useEffect(() => {
-    setResults(articles.slice(0, articleCount));
+    setResults(articles?.slice(0, articleCount));
   }, [articles, articleCount])
 
   const handleDateChange = (e) => {
     setDate(e);
     // reset loading state
-    if (isLoaded) {
-      setIsLoaded(false);
-    }
     setFormattedDate(format(new Date(e), 'yyyy/MM/dd'));
   }
 
   const handleCountChange = (e) => {
     setArticleCount(parseInt(e.target.value));
   }
-  
-  if (!isLoaded) {
-    return <div>Loading...</div>
-  } else if (error) {
-    return <div>Error: {error.message}</div>
-  } else {
-    return (
-      <div className="tw-max-w-lg tw-mx-auto tw-container tw-p-4 tw-space-y-3">
-        <div className="tw-flex tw-space-x-14">
-          <DatePicker handleDateChange={handleDateChange} date={date} maxDate={today} title='Start date:' />
-          <Select handleSelectChange={handleCountChange} defaultValue={articleCount} title="Number of Results" options={[25, 50, 75, 100, 200]} />
-        </div>
-        <div className="tw-flex tw-flex-col tw-space-y-5">
-          {results.map((article) => (
-            <Card key={article.article} title={article.article.split('_').join(' ')} secondaryTitle="Views:" secondaryValue={article.views.toLocaleString("en-US")} />
-          ))}
+
+  const handleCountryCodeChange = (e) => {
+    setCountryCode(e.target.value);
+  }
+
+  return (
+    <div className="tw-container tw-p-4 tw-space-y-3">
+      <div className="tw-flex tw-space-x-14 tw-justify-center tw-flex-wrap">
+        <DatePicker handleDateChange={handleDateChange} date={date} maxDate={today} title='Start date:' />
+          <Select handleSelectChange={handleCountChange} defaultValue={articleCount} title="Number of Results" options={[{value: 25, label: 25}, { value: 50, label: 50 }, {value: 75, label: 75 }, {value: 100, label: 100 }, { value: 200, label: 200}]} />
+        <div className="tw-w-40">
+          <Select handleSelectChange={handleCountryCodeChange} defaultValue='all' title="Country" options={countries} />
         </div>
       </div>
-    );
-
-  }
+        {!isLoaded && <div>Loading...</div>}
+        {error && (
+          <div>
+            <p className="tw-text-red-400">{error}</p>
+          </div>
+        )}
+        {isLoaded && ! error && results && (
+            <div className="tw-flex tw-flex-col tw-space-y-5 tw-max-w-xl tw-mx-auto">
+              {results.map((article) => (
+                <Card key={article.article} title={article.article.split('_').join(' ')} secondaryTitle="Views:" secondaryValue={article?.views?.toLocaleString("en-US") || article?.views_ceil?.toLocaleString("en-US")} />
+              ))}
+            </div>
+          )
+        }
+    </div>
+  )
 }
 
 export default Dashboard;

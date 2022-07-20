@@ -1,11 +1,11 @@
 const SelectDropdown = ({ handleSelectChange, defaultValue, title, options }) => {
   return (
-    <label className="tw-text-sm tw-flex tw-flex-col">
+    <label className="tw-text-sm tw-flex tw-flex-col tw-text-left">
       {title}
       <select defaultValue={defaultValue} onChange={handleSelectChange}>
-        {options.map((value) => {
+        {options.map((option) => {
           return (
-            <option key={value} value={value}>{value}</option>
+            <option key={option.value} value={option.value}>{option.label}</option>
           )
         })}
       </select>
