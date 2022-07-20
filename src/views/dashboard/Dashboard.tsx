@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Card from "../../components/common/card/Card.tsx";
 import DatePicker from "../../components/common/date-picker/DatePicker.tsx";
+import Select from "../../components/common/select/SelectDropdown.tsx"
 import { format } from "date-fns";
 
 const Dashboard = () => {
@@ -13,6 +14,9 @@ const Dashboard = () => {
 
   const [date, setDate] = useState(new Date(yesterday));
   const [formattedDate, setFormattedDate] = useState(format(new Date(yesterday), 'yyyy/MM/dd'));
+
+  const [articleCount, setArticleCount] = useState(100);
+  const [results, setResults] = useState(articles.slice(0, 100));
 
   const fetchArticles = () => {
     // reset loading state
@@ -39,9 +43,17 @@ const Dashboard = () => {
     fetchArticles();
   }, [formattedDate])
 
+  useEffect(() => {
+    setResults(articles.slice(0, articleCount));
+  }, [articles, articleCount])
+
   const handleDateChange = (e) => {
     setDate(e);
     setFormattedDate(format(new Date(e), 'yyyy/MM/dd'));
+  }
+
+  const handleCountChange = (e) => {
+    setArticleCount(parseInt(e.target.value));
   }
   
   if (!isLoaded) {
@@ -52,8 +64,9 @@ const Dashboard = () => {
     return (
       <div>
         <DatePicker handleDateChange={handleDateChange} date={date} maxDate={today} />
-        {articles.map(article => (
-            <Card key={article.article} title={article.article} views={article.views} />
+        <Select handleCountChange={handleCountChange} defaultValue={articleCount} />
+        {results.map((article) => (
+          <Card key={article.article} title={article.article} views={article.views} />
         ))}
       </div>
     );
