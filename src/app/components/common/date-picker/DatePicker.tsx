@@ -1,14 +1,12 @@
-import React, { useState } from "react";
 import ReactDatePicker from "react-datepicker";
-
 import "react-datepicker/dist/react-datepicker.css";
 
-// CSS Modules, react-datepicker-cssmodules.css
-import 'react-datepicker/dist/react-datepicker-cssmodules.css';
 
-const DatePicker = ({ date, handleDateChange, maxDate }) => {
+const DatePicker = ({ date, handleDateChange, maxDate, title }) => {
   return (
-    <ReactDatePicker selected={date} onChange={handleDateChange} maxDate={maxDate} />
+    <label className="tw-text-sm tw-flex tw-flex-col tw-items-start tw-space-y-2">{title}
+      <ReactDatePicker selected={date} onChange={handleDateChange} maxDate={maxDate} />
+    </label>
   );
 };
 

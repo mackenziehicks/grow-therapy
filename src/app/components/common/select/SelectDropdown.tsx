@@ -1,15 +1,15 @@
-import React, { useEffect } from 'react';
-
-const SelectDropdown = ({ handleCountChange, defaultValue }) => {
-  const values = [25, 50, 75, 100, 200];
+const SelectDropdown = ({ handleSelectChange, defaultValue, title, options }) => {
   return (
-    <select defaultValue={defaultValue} onChange={handleCountChange}>
-      {values.map((value) => {
-        return (
-          <option key={value} value={value}>{value}</option>
-        )
-      })}
-    </select>
+    <label className="tw-text-sm tw-flex tw-flex-col">
+      {title}
+      <select defaultValue={defaultValue} onChange={handleSelectChange}>
+        {options.map((value) => {
+          return (
+            <option key={value} value={value}>{value}</option>
+          )
+        })}
+      </select>
+    </label>
   )
 }
 
