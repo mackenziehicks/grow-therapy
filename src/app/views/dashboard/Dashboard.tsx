@@ -3,6 +3,13 @@ import Card from '../../components/common/card/Card.tsx'
 import DatePicker from '../../components/common/date-picker/DatePicker.tsx'
 import Select from '../../components/common/select/SelectDropdown.tsx'
 import { format } from 'date-fns'
+import {
+  DashboardEnumSelectTitles,
+  DashboardEnumCardTitles,
+  DashboardEnumError,
+  DashboardEnumDateFormat,
+} from './Dashboard.enum.ts'
+import { DashboardNumberOfResultsOptionsList } from './Dashboard.list.ts'
 
 const Dashboard = () => {
   const [error, setError] = useState(null)
@@ -13,12 +20,14 @@ const Dashboard = () => {
   const yesterday = today.setDate(today.getDate() - 1)
 
   const [date, setDate] = useState(new Date(yesterday))
-  const [formattedDate, setFormattedDate] = useState(format(new Date(yesterday), 'yyyy/MM/dd'))
+  const [formattedDate, setFormattedDate] = useState(
+    format(new Date(yesterday), DashboardEnumDateFormat.FORMAT),
+  )
 
   const [articleCount, setArticleCount] = useState(100)
   const [results, setResults] = useState(articles ? articles.slice(0, 100) : [])
 
-  const [countryCode, setCountryCode] = useState(null)
+  const [countryCode, setCountryCode] = useState('All')
   const [countries, setCountries] = useState([])
 
   useEffect(() => {
@@ -31,7 +40,7 @@ const Dashboard = () => {
         })
 
         const sorted = [...codes].sort((a, b) => a.label.localeCompare(b.label))
-        sorted.unshift({ label: 'All', value: null })
+        sorted.unshift({ label: 'All', value: 'All' })
         setCountries(sorted)
       })
       .catch((error) => {
@@ -46,9 +55,11 @@ const Dashboard = () => {
     if (error) {
       setError(null)
     }
-    const url = countryCode
-      ? `https://wikimedia.org/api/rest_v1/metrics/pageviews/top-per-country/${countryCode}/all-access/${formattedDate}`
-      : `https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia/all-access/${formattedDate}`
+
+    const url =
+      countryCode === 'All'
+        ? `https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia/all-access/${formattedDate}`
+        : `https://wikimedia.org/api/rest_v1/metrics/pageviews/top-per-country/${countryCode}/all-access/${formattedDate}`
 
     /* fetch articles */
     const fetchArticles = () => {
@@ -56,7 +67,9 @@ const Dashboard = () => {
       fetch(url)
         .then((res) => {
           if (!res.ok) {
-            setError(`Error: ${res.status} ${res.statusText}, Please try another country or date!`)
+            setError(
+              `${DashboardEnumError.ERROR} ${res.status} ${res.statusText}, ${DashboardEnumError.MESSAGE}`,
+            )
           }
           return res.json()
         })
@@ -80,7 +93,7 @@ const Dashboard = () => {
   const handleDateChange = (e) => {
     setDate(e)
     // reset loading state
-    setFormattedDate(format(new Date(e), 'yyyy/MM/dd'))
+    setFormattedDate(format(new Date(e), DashboardEnumDateFormat.FORMAT))
   }
 
   const handleCountChange = (e) => {
@@ -88,6 +101,7 @@ const Dashboard = () => {
   }
 
   const handleCountryCodeChange = (e) => {
+    console.log(e.target.value)
     setCountryCode(e.target.value)
   }
 
@@ -98,27 +112,21 @@ const Dashboard = () => {
           handleDateChange={handleDateChange}
           date={date}
           maxDate={today}
-          title="Start date:"
+          title={DashboardEnumSelectTitles.START_DATE}
         />
         <div className="tw-w-40">
           <Select
             handleSelectChange={handleCountryCodeChange}
-            defaultValue="all"
-            title="Country"
+            defaultValue={'All'}
+            title={DashboardEnumSelectTitles.COUNTRY}
             options={countries}
           />
         </div>
         <Select
           handleSelectChange={handleCountChange}
           defaultValue={articleCount}
-          title="Number of Results"
-          options={[
-            { value: 25, label: 25 },
-            { value: 50, label: 50 },
-            { value: 75, label: 75 },
-            { value: 100, label: 100 },
-            { value: 200, label: 200 },
-          ]}
+          title={DashboardEnumSelectTitles.NUMBER_OF_RESULTS}
+          options={DashboardNumberOfResultsOptionsList}
         />
       </div>
       {!isLoaded && (
@@ -133,17 +141,21 @@ const Dashboard = () => {
       )}
       {isLoaded && !error && results && (
         <div className="tw-flex tw-flex-col tw-space-y-5 tw-max-w-xl tw-mx-auto">
-          {results.map((article) => (
-            <Card
-              key={article.article}
-              title={article.article.split('_').join(' ')}
-              secondaryTitle="Views:"
-              secondaryValue={
-                article?.views?.toLocaleString('en-US') ||
-                article?.views_ceil?.toLocaleString('en-US')
-              }
-            />
-          ))}
+          {results.map((article) => {
+            const secondaryValue =
+              article?.views?.toLocaleString('en-US') ||
+              article?.views_ceil?.toLocaleString('en-US')
+            const title = `${article.rank}. ${article.article.split('_').join(' ')}`
+
+            return (
+              <Card
+                key={article.article}
+                title={title}
+                secondaryTitle={DashboardEnumCardTitles.VIEWS}
+                secondaryValue={secondaryValue}
+              />
+            )
+          })}
         </div>
       )}
     </div>
