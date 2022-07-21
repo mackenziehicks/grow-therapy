@@ -1,4 +1,4 @@
-import { SelectDropdownInterface } from './SelectDropdown.interface'
+import { SelectDropdownInterface } from './SelectDropdown.interface';
 
 const SelectDropdown = ({
   handleSelectChange,
@@ -6,10 +6,10 @@ const SelectDropdown = ({
   title,
   options,
 }: {
-  handleSelectChange: () => void
-  defaultValue: string | number
-  title: string
-  options: Array<SelectDropdownInterface>
+  handleSelectChange: () => void;
+  defaultValue: string | number;
+  title: string;
+  options: Array<SelectDropdownInterface>;
 }) => {
   return (
     <label className="tw-text-sm tw-flex tw-flex-col tw-text-left">
@@ -20,11 +20,11 @@ const SelectDropdown = ({
             <option key={option.value} value={option.value}>
               {option.label}
             </option>
-          )
+          );
         })}
       </select>
     </label>
-  )
-}
+  );
+};
 
-export default SelectDropdown
+export default SelectDropdown;

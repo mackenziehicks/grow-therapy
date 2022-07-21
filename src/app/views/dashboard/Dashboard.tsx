@@ -1,34 +1,34 @@
-import { useEffect, useState } from 'react'
-import Card from '../../components/common/card/Card.tsx'
-import DatePicker from '../../components/common/date-picker/DatePicker.tsx'
-import Select from '../../components/common/select/SelectDropdown.tsx'
-import { format } from 'date-fns'
+import { useEffect, useState } from 'react';
+import Card from '../../components/common/card/Card.tsx';
+import DatePicker from '../../components/common/date-picker/DatePicker.tsx';
+import Select from '../../components/common/select/SelectDropdown.tsx';
+import { format } from 'date-fns';
 import {
   DashboardEnumSelectTitles,
   DashboardEnumCardTitles,
   DashboardEnumError,
   DashboardEnumDateFormat,
-} from './Dashboard.enum.ts'
-import { DashboardNumberOfResultsOptionsList } from './Dashboard.list.ts'
+} from './Dashboard.enum.ts';
+import { DashboardNumberOfResultsOptionsList } from './Dashboard.list.ts';
 
 const Dashboard = () => {
-  const [error, setError] = useState(null)
-  const [isLoaded, setIsLoaded] = useState(false)
-  const [articles, setArticles] = useState([])
+  const [error, setError] = useState(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [articles, setArticles] = useState([]);
 
-  const today = new Date()
-  const yesterday = today.setDate(today.getDate() - 1)
+  const today = new Date();
+  const yesterday = today.setDate(today.getDate() - 1);
 
-  const [date, setDate] = useState(new Date(yesterday))
+  const [date, setDate] = useState(new Date(yesterday));
   const [formattedDate, setFormattedDate] = useState(
     format(new Date(yesterday), DashboardEnumDateFormat.FORMAT),
-  )
+  );
 
-  const [articleCount, setArticleCount] = useState(100)
-  const [results, setResults] = useState(articles ? articles.slice(0, 100) : [])
+  const [articleCount, setArticleCount] = useState(100);
+  const [results, setResults] = useState(articles ? articles.slice(0, 100) : []);
 
-  const [countryCode, setCountryCode] = useState('All')
-  const [countries, setCountries] = useState([])
+  const [countryCode, setCountryCode] = useState('All');
+  const [countries, setCountries] = useState([]);
 
   useEffect(() => {
     /* Get list of country codes*/
@@ -36,30 +36,30 @@ const Dashboard = () => {
       .then((res) => res.json())
       .then((data) => {
         const codes = data.map((country) => {
-          return { label: country.name.common, value: country.cca2 }
-        })
+          return { label: country.name.common, value: country.cca2 };
+        });
 
-        const sorted = [...codes].sort((a, b) => a.label.localeCompare(b.label))
-        sorted.unshift({ label: 'All', value: 'All' })
-        setCountries(sorted)
+        const sorted = [...codes].sort((a, b) => a.label.localeCompare(b.label));
+        sorted.unshift({ label: 'All', value: 'All' });
+        setCountries(sorted);
       })
       .catch((error) => {
-        setError(error)
-      })
-  }, [])
+        setError(error);
+      });
+  }, []);
 
   useEffect(() => {
     if (isLoaded) {
-      setIsLoaded(false)
+      setIsLoaded(false);
     }
     if (error) {
-      setError(null)
+      setError(null);
     }
 
     const url =
       countryCode === 'All'
         ? `https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia/all-access/${formattedDate}`
-        : `https://wikimedia.org/api/rest_v1/metrics/pageviews/top-per-country/${countryCode}/all-access/${formattedDate}`
+        : `https://wikimedia.org/api/rest_v1/metrics/pageviews/top-per-country/${countryCode}/all-access/${formattedDate}`;
 
     /* fetch articles */
     const fetchArticles = () => {
@@ -69,41 +69,41 @@ const Dashboard = () => {
           if (!res.ok) {
             setError(
               `${DashboardEnumError.ERROR} ${res.status} ${res.statusText}, ${DashboardEnumError.MESSAGE}`,
-            )
+            );
           }
-          return res.json()
+          return res.json();
         })
         .then((data) => {
-          setIsLoaded(true)
-          setArticles(data && data.items && data.items[0].articles)
+          setIsLoaded(true);
+          setArticles(data && data.items && data.items[0].articles);
         })
         .catch((error) => {
-          setIsLoaded(true)
-          setError(error)
-        })
-    }
+          setIsLoaded(true);
+          setError(error);
+        });
+    };
 
-    fetchArticles()
-  }, [formattedDate, countryCode])
+    fetchArticles();
+  }, [formattedDate, countryCode]);
 
   useEffect(() => {
-    setResults(articles?.slice(0, articleCount))
-  }, [articles, articleCount])
+    setResults(articles?.slice(0, articleCount));
+  }, [articles, articleCount]);
 
   const handleDateChange = (e) => {
-    setDate(e)
+    setDate(e);
     // reset loading state
-    setFormattedDate(format(new Date(e), DashboardEnumDateFormat.FORMAT))
-  }
+    setFormattedDate(format(new Date(e), DashboardEnumDateFormat.FORMAT));
+  };
 
   const handleCountChange = (e) => {
-    setArticleCount(parseInt(e.target.value))
-  }
+    setArticleCount(parseInt(e.target.value));
+  };
 
   const handleCountryCodeChange = (e) => {
-    console.log(e.target.value)
-    setCountryCode(e.target.value)
-  }
+    console.log(e.target.value);
+    setCountryCode(e.target.value);
+  };
 
   return (
     <div className="tw-container tw-p-4 tw-space-y-3">
@@ -144,8 +144,8 @@ const Dashboard = () => {
           {results.map((article) => {
             const secondaryValue =
               article?.views?.toLocaleString('en-US') ||
-              article?.views_ceil?.toLocaleString('en-US')
-            const title = `${article.rank}. ${article.article.split('_').join(' ')}`
+              article?.views_ceil?.toLocaleString('en-US');
+            const title = `${article.rank}. ${article.article.split('_').join(' ')}`;
 
             return (
               <Card
@@ -154,12 +154,12 @@ const Dashboard = () => {
                 secondaryTitle={DashboardEnumCardTitles.VIEWS}
                 secondaryValue={secondaryValue}
               />
-            )
+            );
           })}
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default Dashboard
+export default Dashboard;

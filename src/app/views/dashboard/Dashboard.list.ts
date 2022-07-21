@@ -1,4 +1,4 @@
-import { DashboardNumberOfResultsOptionsInterface } from './Dashboard.enum.ts'
+import { DashboardNumberOfResultsOptionsInterface } from './Dashboard.enum.ts';
 
 export const DashboardNumberOfResultsOptionsList: DashboardNumberOfResultsOptionsInterface[] = [
   { value: 25, label: 25 },
@@ -6,4 +6,4 @@ export const DashboardNumberOfResultsOptionsList: DashboardNumberOfResultsOption
   { value: 75, label: 75 },
   { value: 100, label: 100 },
   { value: 200, label: 200 },
-]
+];
