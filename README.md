@@ -17,7 +17,6 @@ A React app displaying a list of the top viewed Wikipedia article titles, ranked
 - [x] [eslint-config-prettier](https://github.com/prettier/eslint-config-prettier)
 - [x] [eslint-plugin-prettier](https://github.com/prettier/eslint-plugin-prettier)
 - [x] [eslint-plugin-react-hooks](https://github.com/facebook/react)
-- [x] [react-datepicker](https://github.com/Hacker0x01/react-datepicker)
 
 
 
@@ -27,6 +26,7 @@ A React app displaying a list of the top viewed Wikipedia article titles, ranked
 - [x] [Tailwindcss](https://github.com/tailwindlabs/tailwindcss/)
 - [x] [Autoprefixer](https://github.com/postcss/autoprefixer/)
 - [x] [Postcss](https://github.com/postcss/postcss/)
+- [x] [react-datepicker](https://github.com/Hacker0x01/react-datepicker)
 
 #### APIs
 - [x] [Analytics/AQS/Pageviews](https://wikitech.wikimedia.org/wiki/Analytics/AQS/Pageviews)
